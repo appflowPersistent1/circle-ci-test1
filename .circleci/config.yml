@@ -1,70 +1,36 @@
 version: 2.1
 
-setup: true
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  say-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
+  say-goodbye:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBue"
+          command: "echo Hi, Goodbye!"
 
-parameters:
-  run-webshop:
-    type: boolean
-    default: false
-  run-docs:
-    type: boolean
-    default: false
-  force-workflows:
-    type: boolean
-    default: false
-
-
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  setup:
+  say hello:
     jobs:
-      - path-filtering/filter:
-          force-workflows: << pipeline.parameters.force-workflows >>
-          mapping: |
-            ^((?!docs/).)*$ run-webshop false
-            docs/.* run-docs true
-
-orbs:
-  path-filtering:
-    orbs:
-      continuation: circleci/continuation@0.2.0
-    commands:
-      set-parameters:
-        parameters:
-          force-workflows:
-            default: false
-            type: boolean
-          mapping:
-            default: ""
-            type: string
-        steps:
-          - run:
-              command: # very similar to path-filtering that skips filtering if force-workflows is true and set this parameter on json file
-              environment:
-                MAPPING: << parameters.mapping >>
-                OUTPUT_PATH: /tmp/pipeline-parameters.json
-                FORCE_WORKFLOWS: << parameters.force-workflows >>
-              name: Set parameters
-              shell: /usr/bin/env python3
-    executors:
-      default:
-        docker:
-          - image: cimg/python:3.8
-    jobs:
-      filter:
-        executor: default
-        parameters:
-          force-workflows:
-            default: false
-            type: boolean
-          mapping:
-            default: ""
-            type: string
-        resource_class: small
-        steps:
-          - checkout
-          - set-parameters:
-              mapping: << parameters.mapping >>
-              force-workflows: << parameters.force-workflows >>
-          - continuation/continue:
-              configuration_path: .circleci/continue_config.yml
-              parameters: /tmp/pipeline-parameters.json
+      - say-hello:
+          context:
+            - context-a
+            - context-i
+      - say-goodbye
