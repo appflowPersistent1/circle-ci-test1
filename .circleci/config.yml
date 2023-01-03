@@ -6,7 +6,7 @@ commands:
       message:
         type: string
     steps:
-      - run: echo test
+      - run: echo << parameters.message >>
 
 jobs:
   daily-message:
@@ -16,10 +16,10 @@ jobs:
         type: string
     steps:
       - print:
-          message: Printing test
+          message: Printing << parameters.message >>
 
 workflows:
   my-workflow:
     jobs:
       - daily-message:
-         message: echo test
+         message: echo << parameters.message >>
