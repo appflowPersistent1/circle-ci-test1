@@ -1,19 +1,20 @@
 version: 2.1
 parameters:
-  image-tag:
-    type: string
-    default: "latest"
-  workingdir:
-    type: string
-    default: "~/main"
-
+  my_optional_param:
+    type: boolean
+    default: false
 jobs:
-  build:
+  hello-job:
     docker:
-      - image: circleci/node:<< pipeline.parameters.image-tag >>
-    environment:
-      IMAGETAG: << pipeline.parameters.image-tag >>
-    working_directory: << pipeline.parameters.workingdir >>
+      - image: cimg/node:17.2.0 # the primary container, where your job's commands are run
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
     steps:
-      - run: echo "Image tag used was ${IMAGETAG}"
-      - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
+      - checkout # check out the code in the project directory
+      - run: echo "hello world" # run the `echo` command
+
+workflows:
+  my-workflow:
+    jobs:
+      - hello-job
