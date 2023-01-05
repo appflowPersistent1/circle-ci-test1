@@ -1,49 +1,86 @@
-version: 2
+version: 2.1
+
+setup: true
+
+orbs:
+  continuation: circleci/continuation@0.1.2
+
 jobs:
-  test:
-    working_directory: ~/crm-dashboard
-    docker:
-      - image: circleci/node:12-browsers
-    steps:
-      - checkout
-      - restore_cache:
-          key: crm-dashboard-{{ .Branch }}-{{ checksum "package-lock.json" }}
-      - run: npm install
-      - save_cache:
-          key: crm-dashboard-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - "node_modules"
-      - run: xvfb-run -a npm run test --no-watch --no-progress --browsers=ChromeHeadlessCI
-      - run: xvfb-run -a npm run e2e --configuration=protractor-ci.conf.js
-  build:
+  setup:
+    executor: continuation/default
     steps:
       - checkout
       - run:
-        name: Set Docker Tag
-        command: |
-          export TAG=if [$CIRCLE_BRANCH=="master"] then "latest" else $CIRCLE_BRANCH fi
-          echo $TAG
-      - setup_remote_docker
-      - run:
-        name: Build Docker Image
-        command: docker build . -t crm-dashboard:$TAG -f ./docker/Dockerfile --build-arg CONFIGURATION=$CIRCLE_BRANCH
-  publish:
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Publish Docker Images to Docker Hub
+          name: Generate config
           command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker push crm-dashboard:latest
+            ./generate-config > generated_config.yml
+      - continuation/continue:
+          configuration_path: generated_config.yml
+  say-goodbye1:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye2:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye3:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye4:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye5:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye6:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
+  say-goodbye7:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say GoodBye"
+          command: "echo Hi, Goodbye!"
 
 workflows:
-  version: 2
-  build_and_publish:
+  setup:
     jobs:
-      - publish:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
+      - setup
+      - say-goodbye1
+      - say-goodbye2
+      - say-goodbye3
+      - say-goodbye4
+      - say-goodbye5
+      - say-goodbye6
+      - say-goodbye7
